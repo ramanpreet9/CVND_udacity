@@ -68,7 +68,6 @@ def make_data(N, num_landmarks, world_size, measurement_range, motion_noise,
     r.make_landmarks(num_landmarks)
 
     while not complete:
-
         data = []
 
         seen = [False for row in range(num_landmarks)]
@@ -100,7 +99,7 @@ def make_data(N, num_landmarks, world_size, measurement_range, motion_noise,
         # we are done when all landmarks were observed; otherwise re-run
         complete = (sum(seen) == num_landmarks)
 
-    print(' ')
+    print(' tt          ')
     print('Landmarks: ', r.landmarks)
     print(r)
 
