@@ -4,7 +4,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+ 
 
 # --------
 # this helper function displays the world that a robot is in
