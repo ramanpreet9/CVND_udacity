@@ -1,0 +1,7 @@
+models/
+data/
+jsons/
+.ipynb_checkpoints/
+__pycache__/
+annotations/
+.DS_Store
