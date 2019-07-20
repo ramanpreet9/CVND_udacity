@@ -1,6 +1,7 @@
 
 Image-Captioning-Project-master\cocoapi\*
 Image-Captioning-Project-master\.ipynb_checkpoints\*
+coco-master\*
 # Ignore Mac system files
 .DS_store
 
