@@ -47,6 +47,8 @@ class DecoderRNN(nn.Module):
         Based on previously seen data.
         The dims: (num_layers, batch_size, hidden_size)
         '''
+        #TODO: not working right now doesnt initialize at all from this function
+        
         print('in init_hiden')
         return (torch.zeros((1, batch_size, self.hidden_size), device=device), 
                 torch.zeros((1, batch_size, self.hidden_size), device=device))
@@ -80,4 +82,33 @@ class DecoderRNN(nn.Module):
     
     def sample(self, inputs, states=None, max_len=20):
         " accepts pre-processed image tensor (inputs) and returns predicted sentence (list of tensor ids of length max_len) "
-        pass
+        # design wise same as forward
+        features = inputs
+        batch_size = features.shape[0]
+        #print('batch size in inference (should be 1)', batch_size)
+        self.hidden_w = (torch.zeros((1, batch_size, self.hidden_size), device=device), 
+                         torch.zeros((1, batch_size, self.hidden_size), device=device))
+        out = []
+        while True:
+            x, self.hidden_w = self.lstm(features, self.hidden_w) # x shape : (1, 1, hidden_size)
+            #import numpy as np
+            #print('x_out =', np.ndim(x))
+            #print('hc =', np.ndim(hc))
+            #print('x_out.shape, self.hidden_w.shape)
+            x = self.fc(x)  # x shape : (1, 1, vocab_size)
+            x = x.squeeze(1) # x shape : (1, vocab_size)
+            _, max_indice = torch.max(x, dim=1) # predict the most likely next word, max_indice shape : (1)
+            
+            out.append(max_indice.cpu().numpy()[0].item()) # storing the word predicted
+            # if next word is 'end' then sop here.
+            if (max_indice == 1):
+                #print('out = ', out)
+                break
+            # else continue
+            ## Prepare to embed the last predicted word to be the new input of the lstm
+            features = self.word_embeddings(max_indice) # features shape : (1, embed_size)
+            features = features.unsqueeze(1) # features shape : (1, 1, embed_size)
+        
+        #x = forward(inputs, captions)
+        
+        return out
