@@ -48,7 +48,6 @@ class DecoderRNN(nn.Module):
         The dims: (num_layers, batch_size, hidden_size)
         '''
         #TODO: not working right now doesnt initialize at all from this function
-        
         print('in init_hiden')
         return (torch.zeros((1, batch_size, self.hidden_size), device=device), 
                 torch.zeros((1, batch_size, self.hidden_size), device=device))
@@ -56,25 +55,17 @@ class DecoderRNN(nn.Module):
     
     
     def forward(self, features, captions):
-        #print('features_shape =', features.shape)
-        #print('captions_shape =', captions.shape)
         batch_size = features.shape[0]
-        #self.hidden_w = init_hidden(self, batch_size)
         self.hidden_w = (torch.zeros((1, batch_size, self.hidden_size), device=device), 
                          torch.zeros((1, batch_size, self.hidden_size), device=device))    
-        #print('hidden_w =', self.hidden_w.shape)
         captions = captions[:,:-1] # remove end
         embeddings = self.word_embeddings(captions)
         #print('embeddings =', embeddings.shape)
         # Stack the features and captions
-        embeddings = torch.cat((features.unsqueeze(1), embeddings), dim=1) # embeddings new shape : (batch_size, caption length, embed_size)
-        #print('embeddings =', embeddings.shape)
-        # Get the output and hidden state by passing the lstm over our word embeddings
+        embeddings = torch.cat((features.unsqueeze(1), embeddings), dim=1) 
+        # embeddings new shape : (batch_size, caption length, embed_size)
         # the lstm takes in our embeddings and hidden state
         x, hc = self.lstm(embeddings, self.hidden_w) # lstm_out shape : (batch_size, caption length, hidden_size)
-        #print('x_shape =', x.shape)
-        #import numpy as np
-        #print('hc_shape =', np.ndim(hc))
         # Fully connected layer
         x = self.fc(x)
         return x 
@@ -91,10 +82,7 @@ class DecoderRNN(nn.Module):
         out = []
         while True:
             x, self.hidden_w = self.lstm(features, self.hidden_w) # x shape : (1, 1, hidden_size)
-            #import numpy as np
-            #print('x_out =', np.ndim(x))
-            #print('hc =', np.ndim(hc))
-            #print('x_out.shape, self.hidden_w.shape)
+
             x = self.fc(x)  # x shape : (1, 1, vocab_size)
             x = x.squeeze(1) # x shape : (1, vocab_size)
             _, max_indice = torch.max(x, dim=1) # predict the most likely next word, max_indice shape : (1)
@@ -105,7 +93,7 @@ class DecoderRNN(nn.Module):
                 #print('out = ', out)
                 break
             # else continue
-            ## Prepare to embed the last predicted word to be the new input of the lstm
+            # Embed the last predicted word to be the new input of the lstm
             features = self.word_embeddings(max_indice) # features shape : (1, embed_size)
             features = features.unsqueeze(1) # features shape : (1, 1, embed_size)
         
